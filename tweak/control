@@ -1,0 +1,9 @@
+Package: com.ipaverify.plugin
+Name: VerifyPlugin
+Version: 1.0.0
+Architecture: iphoneos-arm
+Description: iOS 网络验证 / 卡密激活 / 远程公告插件
+Maintainer: IPA Verify System
+Author: IPA Verify System
+Section: Tweaks
+Depends: firmware (>= 11.0)

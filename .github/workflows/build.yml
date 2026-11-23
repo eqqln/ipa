@@ -1,0 +1,48 @@
+# GitHub Actions 自动编译：push 代码或手动触发 -> 产出已签名 IPA 供下载
+# 使用 GitHub 自带的 macOS runner，内置 Xcode + SDK，无需自建 Mac
+name: 编译授权壳 IPA
+
+on:
+  # 手动点按钮触发（推荐）
+  workflow_dispatch:
+  # 推送到 main 自动触发
+  push:
+    branches: [main]
+    paths:
+      - 'shell-app/**'
+      - 'tweak/**'
+      - '.github/workflows/build.yml'
+
+jobs:
+  build:
+    runs-on: macos-14
+    timeout-minutes: 30
+    steps:
+      - name: 检出源码
+        uses: actions/checkout@v4
+
+      - name: 安装 xcodegen
+        run: brew install xcodegen
+
+      - name: 查看 Xcode 版本
+        run: xcodebuild -version
+
+      - name: 编译壳 App（build.sh 内含 dylib 编译 + xcodegen + archive + 打包）
+        run: |
+          chmod +x shell-app/build.sh
+          bash shell-app/build.sh
+
+      - name: 上传 IPA 作为构建产物
+        uses: actions/upload-artifact@v4
+        with:
+          name: IPAShell
+          path: shell-app/build/IPAShell.ipa
+          if-no-files-found: error
+
+      - name: 生成下载说明
+        run: |
+          echo "## ✅ 编译完成" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "在页面下方 **Artifacts** 下载 \`IPAShell.zip\`，解压得到 \`IPAShell.ipa\`。" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "该 IPA **未签名**，用全能签导入并选择你的证书重签后安装。" >> $GITHUB_STEP_SUMMARY

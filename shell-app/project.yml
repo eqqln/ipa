@@ -1,0 +1,53 @@
+# xcodegen 配置：GitHub Actions 上用它生成 .xcodeproj 再交给 xcodebuild 编译
+# 关键：CODE_SIGNING_ALLOWED=NO —— 产出未签名 IPA，由全能签重签安装
+name: IPAShell
+
+options:
+  bundleIdPrefix: com.ipashell
+  deploymentTarget:
+    iOS: "15.0"
+  createIntermediateGroups: true
+
+settings:
+  CODE_SIGNING_ALLOWED: NO
+  CODE_SIGNING_REQUIRED: NO
+  CODE_SIGN_IDENTITY: ""
+  IPHONEOS_DEPLOYMENT_TARGET: "15.0"
+  MARKETING_VERSION: "1.0.0"
+  CURRENT_PROJECT_VERSION: "1"
+  SUPPORTED_PLATFORMS: iphoneos
+
+targets:
+  IPAShell:
+    type: application
+    platform: iOS
+    sources:
+      - path: Sources
+    resources:
+      - path: Resources/VerifyPlugin.dylib
+    dependencies:
+      - framework: UniformTypeIdentifiers.framework
+        type: system
+        weak: false
+    info:
+      path: Info.plist
+      properties:
+        CFBundleDisplayName: "IPA授权助手"
+        CFBundleName: "IPAShell"
+        CFBundleIdentifier: "com.ipashell.app"
+        UIFileSharingEnabled: true
+        LSSupportsOpeningDocumentsInPlace: true
+        NSAppTransportSecurity:
+          NSAllowsArbitraryLoads: true
+        UILaunchScreen: {}
+        CFBundleDocumentTypes:
+          - CFBundleTypeName: "iOS App Archive"
+            LSItemContentTypes:
+              - com.apple.itunes.ipa
+            CFBundleTypeRole: Viewer
+    settings:
+      PRODUCT_NAME: IPAShell
+      PRODUCT_BUNDLE_IDENTIFIER: com.ipashell.app
+      CODE_SIGNING_ALLOWED: NO
+      CODE_SIGNING_REQUIRED: NO
+      CODE_SIGN_IDENTITY: ""

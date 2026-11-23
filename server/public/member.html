@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>会员中心 · 注册登录</title>
+<link rel="stylesheet" href="/style.css">
+<style>
+  .portal-wrap { min-height:100vh; display:flex; align-items:center; justify-content:center;
+    background:linear-gradient(135deg,#0f172a 0%,#1e3a5f 55%,#4f46e5 100%); padding:20px; }
+  .portal-card { width:100%; max-width:460px; background:#fff; border-radius:18px; padding:36px; box-shadow:0 24px 70px rgba(0,0,0,.35); }
+  .portal-logo { font-size:46px; text-align:center; }
+  .portal-card h1 { text-align:center; font-size:22px; margin:8px 0 4px; }
+  .portal-sub { text-align:center; color:var(--muted); margin-bottom:24px; font-size:13px; }
+  .tabs { display:flex; gap:8px; margin-bottom:20px; }
+  .tab { flex:1; padding:10px; text-align:center; border-radius:8px; cursor:pointer; background:#f1f5f9; color:#64748b; font-size:14px; }
+  .tab.active { background:var(--primary); color:#fff; font-weight:600; }
+  .plan-grid { display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-top:10px; }
+  .plan-card { border:1.5px solid var(--line); border-radius:12px; padding:16px; }
+  .plan-card.featured { border-color:var(--primary); background:#f8f7ff; position:relative; }
+  .plan-card .badge { position:absolute; top:-10px; right:10px; background:var(--primary); color:#fff; font-size:10px; padding:3px 8px; border-radius:10px; }
+  .plan-card .pname { font-weight:700; font-size:15px; margin-bottom:6px; }
+  .plan-card .pprice { font-size:24px; font-weight:800; color:var(--primary); }
+  .plan-card .pprice small { font-size:12px; color:var(--muted); font-weight:400; }
+  .plan-card .pdesc { font-size:11px; color:var(--muted); margin-top:8px; line-height:1.5; }
+  .dash { display:none; }
+  .cap-list { display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-top:12px; }
+  .cap { display:flex; align-items:center; gap:8px; padding:10px; border-radius:8px; background:#f8fafc; font-size:12px; }
+  .cap.locked { opacity:.45; }
+  .cap.on { background:#f0fdf4; }
+</style>
+</head>
+<body>
+<div class="portal-wrap">
+  <div class="portal-card">
+    <div class="portal-logo">🔐</div>
+    <h1>会员中心</h1>
+    <p class="portal-sub">注册 · 登录 · 套餐开通 · 超级功能</p>
+
+    <!-- 未登录：登录/注册 -->
+    <div id="authBox">
+      <div class="tabs">
+        <div class="tab active" id="tabLogin">登录</div>
+        <div class="tab" id="tabRegister">注册</div>
+      </div>
+      <form id="loginForm2">
+        <div class="field"><label>账号</label><input class="input" name="username" placeholder="请输入账号"></div>
+        <div class="field"><label>密码</label><input class="input" type="password" name="password" placeholder="请输入密码"></div>
+        <button type="submit" class="btn btn-primary btn-block">登 录</button>
+      </form>
+      <form id="regForm" style="display:none">
+        <div class="field"><label>账号</label><input class="input" name="username" placeholder="至少3位"></div>
+        <div class="field"><label>密码</label><input class="input" type="password" name="password" placeholder="至少6位"></div>
+        <div class="field"><label>邮箱（可选）</label><input class="input" name="email"></div>
+        <button type="submit" class="btn btn-primary btn-block">注 册</button>
+      </form>
+      <div id="authMsg" style="margin-top:12px;font-size:12px;color:var(--danger);text-align:center"></div>
+    </div>
+
+    <!-- 已登录：会员面板 -->
+    <div id="dashBox" class="dash">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
+        <div>
+          <div style="font-size:16px;font-weight:700" id="mUsername">-</div>
+          <div id="mLevel" style="margin-top:4px"></div>
+        </div>
+        <button class="btn btn-ghost btn-sm" id="mLogout">退出</button>
+      </div>
+      <div class="note" id="mExpire"></div>
+      <h3 style="font-size:14px;margin:18px 0 8px">🔥 我的超级功能权益</h3>
+      <div class="cap-list" id="mCaps"></div>
+      <h3 style="font-size:14px;margin:20px 0 8px">💎 会员套餐</h3>
+      <div class="plan-grid" id="mPlans"></div>
+    </div>
+  </div>
+</div>
+<div id="toast" class="toast"></div>
+<script>
+const B = '';
+function toast(m,t){const e=document.getElementById('toast');e.textContent=m;e.className='toast show '+(t||'');setTimeout(()=>e.className='toast',2600);}
+async function api(p,o={}){const h={'Content-Type':'application/json'};const c={method:o.method||'GET',headers:h,credentials:'same-origin'};if(o.body)c.body=JSON.stringify(o.body);const r=await fetch('/api/member'+p,c);return r.json();}
+let logged=false;
+
+document.getElementById('tabLogin').onclick=()=>{document.getElementById('tabLogin').classList.add('active');document.getElementById('tabRegister').classList.remove('active');document.getElementById('loginForm2').style.display='';document.getElementById('regForm').style.display='none';};
+document.getElementById('tabRegister').onclick=()=>{document.getElementById('tabRegister').classList.add('active');document.getElementById('tabLogin').classList.remove('active');document.getElementById('regForm').style.display='';document.getElementById('loginForm2').style.display='none';};
+
+document.getElementById('loginForm2').onsubmit=async e=>{e.preventDefault();const d=Object.fromEntries(new FormData(e.target).entries());const r=await api('/login',{method:'POST',body:d});if(r.code===0){toast('登录成功','ok');showDash(r.data);}else document.getElementById('authMsg').textContent=r.msg;};
+document.getElementById('regForm').onsubmit=async e=>{e.preventDefault();const d=Object.fromEntries(new FormData(e.target).entries());const r=await api('/register',{method:'POST',body:d});if(r.code===0){toast('注册成功，已自动登录','ok');showDash(r.data);}else document.getElementById('authMsg').textContent=r.msg;};
+document.getElementById('mLogout').onclick=async()=>{await api('/logout',{method:'POST'});location.reload();};
+
+function showDash(m){
+  logged=true;
+  document.getElementById('authBox').style.display='none';
+  document.getElementById('dashBox').style.display='';
+  document.getElementById('mUsername').textContent=m.username;
+  const l=m.level_info||{name:'普通会员',color:'#64748b',icon:'👤'};
+  document.getElementById('mLevel').innerHTML=`<span class="tag" style="background:${l.color}1a;color:${l.color}">${l.icon} ${l.name}</span>`;
+  document.getElementById('mExpire').textContent=m.expire_at?('会员到期时间：'+new Date(m.expire_at).toLocaleString('zh-CN')):'永久有效';
+  const caps=m.capabilities||[];
+  document.getElementById('mCaps').innerHTML=caps.map(c=>`<div class="cap on">${c.icon} ${c.name}</div>`).join('');
+  loadPlans();
+}
+async function loadPlans(){
+  const r=await api('/catalog');
+  if(r.code!==0)return;
+  const me=await api('/me');
+  const myLevel=me.data?me.data.level:0;
+  document.getElementById('mPlans').innerHTML=r.data.plans.map(p=>`<div class="plan-card ${p.featured?'featured':''}">
+    ${p.featured?'<span class="badge">推荐</span>':''}
+    <div class="pname">${p.name}</div>
+    <div class="pprice">¥${p.price}<small> / ${p.days>0?p.days+'天':'永久'}</small></div>
+    <div class="pdesc">${p.benefits}</div>
+    ${p.level<=myLevel?'<div style="margin-top:8px"><span class="tag tag-ok">已解锁</span></div>':'<button class="btn btn-primary btn-sm" style="margin-top:8px;width:100%" data-plan="'+p.id+'">立即开通</button>'}
+  </div>`).join('');
+}
+(async()=>{const r=await api('/me');if(r.code===0)showDash(r.data);})();
+</script>
+</body>
+</html>

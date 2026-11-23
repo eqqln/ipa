@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>iOS 验证授权系统 · 管理后台</title>
+<link rel="stylesheet" href="/style.css">
+</head>
+<body>
+
+<!-- 登录视图 -->
+<div id="loginView" class="login-wrap">
+  <div class="login-card">
+    <div class="login-logo">🔐</div>
+    <h1>iOS 验证授权系统</h1>
+    <p class="login-sub">网络验证 · 卡密激活 · 远程公告</p>
+    <form id="loginForm" data-form="login" autocomplete="off">
+      <label>管理员账号</label>
+      <input type="text" id="loginUser" placeholder="请输入账号" value="admin">
+      <label>登录密码</label>
+      <input type="password" id="loginPass" placeholder="请输入密码">
+      <button type="submit" class="btn btn-primary btn-block" id="loginBtn">登 录</button>
+    </form>
+    <div class="login-tip">默认账号 admin / admin123，登录后请尽快修改密码</div>
+  </div>
+</div>
+
+<!-- 主视图 -->
+<div id="appView" class="app hidden">
+  <aside class="sidebar">
+    <div class="brand"><span class="brand-icon">⚡</span><span>验证系统</span></div>
+    <nav class="nav">
+      <a data-view="dashboard" class="nav-item active"><span>📊</span>概览</a>
+      <a data-view="apps" class="nav-item"><span>📱</span>应用管理</a>
+      <a data-view="cards" class="nav-item"><span>🎟️</span>卡密管理</a>
+      <a data-view="devices" class="nav-item"><span>📲</span>设备管理</a>
+      <a data-view="announcements" class="nav-item"><span>📢</span>远程公告</a>
+      <a data-view="logs" class="nav-item"><span>📜</span>验证日志</a>
+      <a data-view="members" class="nav-item"><span>👥</span>会员管理</a>
+      <a data-view="plans" class="nav-item"><span>💎</span>会员套餐</a>
+      <a data-view="settings" class="nav-item"><span>⚙️</span>系统设置</a>
+    </nav>
+    <div class="sidebar-foot">
+      <div class="ver">v1.0.0 · 本地授权</div>
+    </div>
+  </aside>
+
+  <main class="main">
+    <header class="topbar">
+      <div class="crumb"><span id="crumbTitle">概览</span></div>
+      <div class="topbar-right">
+        <span class="admin-badge">👤 <span id="adminName">admin</span></span>
+        <button class="btn btn-ghost btn-sm" id="logoutBtn">退出</button>
+      </div>
+    </header>
+    <div id="content" class="content"></div>
+  </main>
+</div>
+
+<div id="modalRoot"></div>
+<div id="toast" class="toast"></div>
+
+<script src="/app.js"></script>
+</body>
+</html>

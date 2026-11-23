@@ -1,0 +1,19 @@
+{
+  "name": "ipa-verify-system",
+  "version": "1.0.0",
+  "private": true,
+  "description": "iOS 网络验证 / 卡密激活码授权系统服务端",
+  "main": "app.js",
+  "scripts": {
+    "start": "node app.js",
+    "dev": "node app.js"
+  },
+  "engines": {
+    "node": ">=14"
+  },
+  "dependencies": {
+    "express": "^4.18.2",
+    "cookie-parser": "^1.4.6",
+    "bcryptjs": "^2.4.3"
+  }
+}
