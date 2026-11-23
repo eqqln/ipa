@@ -1,0 +1,38 @@
+# 编译清理中心管理客户端 App（指向 quchu.shengka.net）
+name: 编译清理中心管理 IPA
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'admin-app/**'
+      - '.github/workflows/quchu-admin.yml'
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: macos-latest
+    timeout-minutes: 25
+    steps:
+      - name: 检出源码
+        uses: actions/checkout@v4
+
+      - name: 安装 xcodegen
+        run: brew install xcodegen
+
+      - name: 编译（build.sh 内含 xcodegen + archive + 打包）
+        run: |
+          chmod +x admin-app/build.sh
+          bash admin-app/build.sh
+
+      - name: 上传 IPA 构建产物
+        uses: actions/upload-artifact@v4
+        with:
+          name: QuChuAdmin
+          path: admin-app/build/QuChuAdmin.ipa
+          if-no-files-found: error
+
+      - name: 下载说明
+        run: |
+          echo "## ✅ 清理中心管理客户端编译完成" >> $GITHUB_STEP_SUMMARY
+          echo "Artifacts 下载 \`QuChuAdmin.zip\` 解压得 \`QuChuAdmin.ipa\`，未签名用证书重签安装。" >> $GITHUB_STEP_SUMMARY

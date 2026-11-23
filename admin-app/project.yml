@@ -1,6 +1,6 @@
 # xcodegen 配置：GitHub Actions 上生成 .xcodeproj 再交给 xcodebuild 编译
 # 纯 UIKit + WebKit，无越狱依赖，产出未签名 IPA 由全能签重签安装
-name: AdminConsole
+name: QuChuAdmin
 
 options:
   bundleIdPrefix: com.ipashell
@@ -18,7 +18,7 @@ settings:
   SUPPORTED_PLATFORMS: iphoneos
 
 targets:
-  AdminConsole:
+  QuChuAdmin:
     type: application
     platform: iOS
     sources:
@@ -28,9 +28,9 @@ targets:
     info:
       path: Info.plist
       properties:
-        CFBundleDisplayName: "授权中心"
-        CFBundleName: "AdminConsole"
-        CFBundleIdentifier: "com.ipashell.admin"
+        CFBundleDisplayName: "清理中心"
+        CFBundleName: "QuChuAdmin"
+        CFBundleIdentifier: "com.ipashell.quchu"
         NSAppTransportSecurity:
           NSAllowsArbitraryLoads: true
         UILaunchScreen: {}
@@ -41,8 +41,8 @@ targets:
           - UIInterfaceOrientationLandscapeLeft
           - UIInterfaceOrientationLandscapeRight
     settings:
-      PRODUCT_NAME: AdminConsole
-      PRODUCT_BUNDLE_IDENTIFIER: com.ipashell.admin
+      PRODUCT_NAME: QuChuAdmin
+      PRODUCT_BUNDLE_IDENTIFIER: com.ipashell.quchu
       CODE_SIGNING_ALLOWED: NO
       CODE_SIGNING_REQUIRED: NO
       CODE_SIGN_IDENTITY: ""

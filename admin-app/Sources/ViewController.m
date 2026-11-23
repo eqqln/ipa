@@ -1,7 +1,7 @@
 #import "ViewController.h"
 #import <WebKit/WebKit.h>
 
-static NSString * const kAdminURL = @"https://ipa.shengka.net/";
+static NSString * const kAdminURL = @"https://quchu.shengka.net/";
 
 @interface ViewController () <WKNavigationDelegate, WKUIDelegate, UIGestureRecognizerDelegate>
 @property (nonatomic, strong) WKWebView *webView;
@@ -279,7 +279,7 @@ static NSString * const kAdminURL = @"https://ipa.shengka.net/";
         decisionHandler(WKNavigationActionPolicyCancel);
         return;
     }
-    if (![url.host isEqualToString:@"ipa.shengka.net"] && navigationAction.navigationType == WKNavigationTypeLinkActivated) {
+    if (![url.host isEqualToString:@"quchu.shengka.net"] && navigationAction.navigationType == WKNavigationTypeLinkActivated) {
         [self openExternally:url];
         decisionHandler(WKNavigationActionPolicyCancel);
         return;
