@@ -54,6 +54,12 @@ echo "===== [4/5] 打包为未签名 IPA ====="
 rm -rf "$BUILD/Payload" "$BUILD/IPAShell.ipa"
 mkdir -p "$BUILD/Payload"
 cp -R "$BUILD/IPAShell.xcarchive/Products/Applications/IPAShell.app" "$BUILD/Payload/"
+
+# 显式把验证插件 dylib 拷进 App（xcodegen resources 对 .dylib 不保证拷贝）
+mkdir -p "$BUILD/Payload/IPAShell.app/Frameworks"
+cp -f "$RESOURCES/VerifyPlugin.dylib" "$BUILD/Payload/IPAShell.app/Frameworks/VerifyPlugin.dylib"
+echo "验证插件已内置: $(ls -lh "$BUILD/Payload/IPAShell.app/Frameworks/VerifyPlugin.dylib" | awk '{print $5}')"
+
 cd "$BUILD"
 zip -qry IPAShell.ipa Payload
 
