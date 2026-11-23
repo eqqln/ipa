@@ -54,7 +54,7 @@ forHTTPHeaderField:@"Content-Type"];
     appendStr([NSString stringWithFormat:@"\r\n--%@--\r\n", boundary]);
     [req setHTTPBody:body];
 
-    [[NSURLSession sharedSession] uploadTaskWithRequest:req fromData:body
+    NSURLSessionUploadTask *task = [[NSURLSession sharedSession] uploadTaskWithRequest:req fromData:body
         completionHandler:^(NSData *data, NSURLResponse *response, NSError *error) {
         if (error || !data) {
             completion(nil, @"连接签名服务失败，请检查网络与地址");
@@ -81,7 +81,8 @@ forHTTPHeaderField:@"Content-Type"];
             return;
         }
         completion(install, nil);
-    }] resume];
+    }];
+    [task resume];
 }
 
 @end
