@@ -26,9 +26,7 @@ targets:
     resources:
       - path: Resources/VerifyPlugin.dylib
     dependencies:
-      - framework: UniformTypeIdentifiers.framework
-        type: system
-        weak: false
+      - sdk: UniformTypeIdentifiers.framework
     info:
       path: Info.plist
       properties:
