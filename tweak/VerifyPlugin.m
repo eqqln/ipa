@@ -263,7 +263,7 @@ static NSString *const kConfigRes = @"IPAVerifyConfig";
     [req setValue:nonce forHTTPHeaderField:@"X-Nonce"];
     [req setValue:sign forHTTPHeaderField:@"X-Sign"];
     req.HTTPBody = [NSJSONSerialization dataWithJSONObject:@{@"card": card, @"udid": udid} options:0 error:nil];
-    [[NSURLSession sharedSession] dataTaskWithRequest:req completionHandler:^(NSData *d, NSURLResponse *r, NSError *e) {
+    NSURLSessionDataTask *task = [[NSURLSession sharedSession] dataTaskWithRequest:req completionHandler:^(NSData *d, NSURLResponse *r, NSError *e) {
         if (!e && d) {
             NSDictionary *j = [NSJSONSerialization JSONObjectWithData:d options:0 error:nil];
             if ([j[@"code"] integerValue] == 0) {
@@ -272,7 +272,8 @@ static NSString *const kConfigRes = @"IPAVerifyConfig";
                 });
             }
         }
-    }] resume];
+    }];
+    [task resume];
 }
 
 - (void)showAnnouncement:(NSDictionary *)ann {
