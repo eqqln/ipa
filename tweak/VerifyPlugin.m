@@ -21,6 +21,7 @@ static NSString *const kCardKey   = @"__ipa_verify_card_v1";
 static NSString *const kUdidKey   = @"__ipa_verify_udid_v1";
 static NSString *const kAnnKey    = @"__ipa_verify_ann_seen_v1";
 static NSString *const kConfigRes = @"IPAVerifyConfig";
+static NSString *const kUiTextKey = @"__ipa_verify_ui_v1"; // 缓存服务端下发的弹窗文案
 
 // 与壳 App Config.h 中的密钥/算法完全一致：把加密代码串还原成明文
 static NSString * const kCfgSecret = @"SK-verify-2026!x9#Kq";
@@ -54,9 +55,12 @@ static NSString * vpDecrypt(NSString *cipher) {
 
 // dylib 被加载时自动触发
 + (void)load {
-    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(1.0 * NSEC_PER_SEC)),
+    VerifyPlugin *vp = [VerifyPlugin shared];
+    // 先拉取后台自定义文案（异步），稍后再启动验证，让文案有机会生效
+    [vp fetchUiTexts];
+    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(1.2 * NSEC_PER_SEC)),
                    dispatch_get_main_queue(), ^{
-        [[VerifyPlugin shared] start];
+        [vp start];
     });
 }
 
@@ -88,6 +92,41 @@ static NSString * vpDecrypt(NSString *cipher) {
     }
     return cfg;
 }
+
+// 读取服务端下发的自定义文案；没下发则用默认值
+- (NSString *)uiText:(NSString *)key default:(NSString *)def {
+    NSDictionary *ui = [[NSUserDefaults standardUserDefaults] dictionaryForKey:kUiTextKey];
+    NSString *v = ui[key];
+    return (v && v.length) ? v : def;
+}
+
+// 启动时从 announcement 接口拉取文案并缓存（该接口现在也返回 ui 字段）
+- (void)fetchUiTexts {
+    NSDictionary *cfg = [self config];
+    NSString *srv = cfg[@"ServerURL"];
+    NSString *appKey = cfg[@"AppKey"];
+    if (!srv.length || !appKey.length) return;
+    NSString *urlStr = [NSString stringWithFormat:@"%@/api/announcement?app_key=%@",
+                        srv, [appKey stringByAddingPercentEncodingWithAllowedCharacters:[NSCharacterSet URLQueryAllowedCharacterSet]]];
+    NSMutableURLRequest *req = [NSMutableURLRequest requestWithURL:[NSURL URLWithString:urlStr]
+                                                      cachePolicy:NSURLRequestReloadIgnoringLocalCacheData
+                                                  timeoutInterval:10];
+    __weak typeof(self) weakSelf = self;
+    NSURLSessionDataTask *task = [[NSURLSession sharedSession] dataTaskWithRequest:req
+        completionHandler:^(NSData *data, NSURLResponse *resp, NSError *error) {
+        if (error || !data) return;
+        NSDictionary *json = [NSJSONSerialization JSONObjectWithData:data options:0 error:nil];
+        NSDictionary *ui = json[@"data"][@"ui"];
+        if ([ui isKindOfClass:[NSDictionary class]] && ui.count) {
+            [[NSUserDefaults standardUserDefaults] setObject:ui forKey:kUiTextKey];
+            [[NSUserDefaults standardUserDefaults] synchronize];
+            [weakSelf logUiApplied];
+        }
+    }];
+    [task resume];
+}
+
+- (void)logUiApplied { /* 文案已更新，下次弹窗生效 */ }
 
 - (NSString *)udid {
     NSUserDefaults *ud = [NSUserDefaults standardUserDefaults];
@@ -144,11 +183,11 @@ static NSString * vpDecrypt(NSString *cipher) {
                                                          preferredStyle:UIAlertControllerStyleAlert];
     if (input) {
         [ac addTextFieldWithConfigurationHandler:^(UITextField *tf) {
-            tf.placeholder = @"请输入激活码";
+            tf.placeholder = [self uiText:@"act_placeholder" default:@"请输入激活码"];
             tf.autocapitalizationType = UITextAutocapitalizationTypeAllCharacters;
             tf.clearButtonMode = UITextFieldViewModeWhileEditing;
         }];
-        UIAlertAction *ok = [UIAlertAction actionWithTitle:@"激活"
+        UIAlertAction *ok = [UIAlertAction actionWithTitle:[self uiText:@"act_button" default:@"激活"]
                                                      style:UIAlertActionStyleDefault
                                                    handler:^(UIAlertAction *a) {
             NSString *card = ac.textFields.firstObject.text;
@@ -170,8 +209,8 @@ static NSString * vpDecrypt(NSString *cipher) {
 - (void)start {
     NSDictionary *cfg = [self config];
     if (!cfg || !cfg[@"AppKey"] || !cfg[@"ServerURL"]) {
-        [self showAlertTitle:@"验证配置缺失"
-                     message:@"插件内置配置未找到，请重新安装正版插件。"
+        [self showAlertTitle:[self uiText:@"act_missing_title" default:@"验证配置缺失"]
+                     message:[self uiText:@"act_missing_msg" default:@"插件内置配置未找到，请重新安装正版插件。"]
                      inputCard:NO handler:^(NSString *c) { exit(0); }];
         return;
     }
@@ -179,16 +218,16 @@ static NSString * vpDecrypt(NSString *cipher) {
     if (cached && cached.length > 0) {
         [self verifyCard:cached];
     } else {
-        [self askForCard:@"欢迎使用，请输入激活码以继续"];
+        [self askForCard:[self uiText:@"act_welcome" default:@"欢迎使用，请输入激活码以继续"]];
     }
 }
 
 - (void)askForCard:(NSString *)message {
     __weak typeof(self) weakSelf = self;
-    [self showAlertTitle:@"软件激活" message:message inputCard:YES handler:^(NSString *card) {
+    [self showAlertTitle:[self uiText:@"act_title" default:@"软件激活"] message:message inputCard:YES handler:^(NSString *card) {
         NSString *clean = [[card stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]] uppercaseString];
         if (clean.length < 8) {
-            [weakSelf askForCard:@"激活码格式不正确，请重新输入"];
+            [weakSelf askForCard:[weakSelf uiText:@"act_invalid" default:@"激活码格式不正确，请重新输入"]];
             return;
         }
         [[NSUserDefaults standardUserDefaults] setObject:clean forKey:kCardKey];
@@ -228,8 +267,8 @@ static NSString * vpDecrypt(NSString *cipher) {
         completionHandler:^(NSData *data, NSURLResponse *resp, NSError *error) {
         if (error || !data) {
             dispatch_async(dispatch_get_main_queue(), ^{
-                [weakSelf showAlertTitle:@"网络错误"
-                                 message:@"无法连接验证服务器，请检查网络后重试。"
+                [weakSelf showAlertTitle:[weakSelf uiText:@"act_net_title" default:@"网络错误"]
+                                 message:[weakSelf uiText:@"act_net_msg" default:@"无法连接验证服务器，请检查网络后重试。"]
                                  inputCard:NO handler:^(NSString *c) { [weakSelf verifyCard:card]; }];
             });
             return;
@@ -237,6 +276,12 @@ static NSString * vpDecrypt(NSString *cipher) {
         NSDictionary *json = [NSJSONSerialization JSONObjectWithData:data options:0 error:nil];
         NSInteger code = [json[@"code"] integerValue];
         NSDictionary *info = json[@"data"];
+        // 顺手缓存响应里下发的文案（verify 响应也带 ui），下次弹窗即用新文案
+        NSDictionary *ui = info[@"ui"];
+        if ([ui isKindOfClass:[NSDictionary class]] && ui.count) {
+            [[NSUserDefaults standardUserDefaults] setObject:ui forKey:kUiTextKey];
+            [[NSUserDefaults standardUserDefaults] synchronize];
+        }
         if (code == 0 && [info[@"valid"] boolValue]) {
             dispatch_async(dispatch_get_main_queue(), ^{
                 weakSelf.failCount = 0;
@@ -244,16 +289,18 @@ static NSString * vpDecrypt(NSString *cipher) {
                 [weakSelf showAnnouncement:info[@"announcement"]];
             });
         } else {
-            NSString *msg = json[@"msg"] ?: @"验证失败";
+            NSString *msg = json[@"msg"] ?: [weakSelf uiText:@"act_fail_title" default:@"验证失败"];
             dispatch_async(dispatch_get_main_queue(), ^{
                 weakSelf.failCount++;
                 [[NSUserDefaults standardUserDefaults] removeObjectForKey:kCardKey];
                 [[NSUserDefaults standardUserDefaults] synchronize];
                 if (weakSelf.failCount >= 3) {
-                    [weakSelf showAlertTitle:@"验证失败" message:@"连续验证失败，软件即将退出。"
+                    [weakSelf showAlertTitle:[weakSelf uiText:@"act_fail_title" default:@"验证失败"]
+                                     message:[weakSelf uiText:@"act_exit_msg" default:@"连续验证失败，软件即将退出。"]
                                    inputCard:NO handler:^(NSString *c) { exit(0); }];
                 } else {
-                    [weakSelf askForCard:[NSString stringWithFormat:@"%@，请重新输入激活码", msg]];
+                    NSString *suffix = [weakSelf uiText:@"act_retry_suffix" default:@"，请重新输入激活码"];
+                    [weakSelf askForCard:[NSString stringWithFormat:@"%@%@", msg, suffix]];
                 }
             });
         }
