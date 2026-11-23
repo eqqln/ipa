@@ -4,6 +4,11 @@ name: 编译后台管理 IPA
 
 on:
   workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - 'admin-app/**'
+      - '.github/workflows/admin.yml'
 
 jobs:
   build:
