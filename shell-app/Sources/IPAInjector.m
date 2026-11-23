@@ -77,7 +77,11 @@ static NSError *iErr(NSString *msg) {
         NSString *fwDir = [appBundle stringByAppendingPathComponent:@"Frameworks"];
         [[NSFileManager defaultManager] createDirectoryAtPath:fwDir
                                   withIntermediateDirectories:YES attributes:nil error:nil];
-        NSString *srcDylib = [[NSBundle mainBundle] pathForResource:@"VerifyPlugin" ofType:@"dylib"];
+        // 优先从 Frameworks/ 读（build.sh 显式拷入），兼容 main bundle 根目录
+        NSString *srcDylib = [[[NSBundle mainBundle] bundlePath] stringByAppendingPathComponent:@"Frameworks/VerifyPlugin.dylib"];
+        if (![[NSFileManager defaultManager] fileExistsAtPath:srcDylib]) {
+            srcDylib = [[NSBundle mainBundle] pathForResource:@"VerifyPlugin" ofType:@"dylib"];
+        }
         if (!srcDylib) {
             if (error) *error = iErr(@"壳 App 内未找到内置 VerifyPlugin.dylib");
             return nil;
