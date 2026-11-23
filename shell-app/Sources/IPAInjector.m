@@ -77,13 +77,31 @@ static NSError *iErr(NSString *msg) {
         NSString *fwDir = [appBundle stringByAppendingPathComponent:@"Frameworks"];
         [[NSFileManager defaultManager] createDirectoryAtPath:fwDir
                                   withIntermediateDirectories:YES attributes:nil error:nil];
-        // 优先从 Frameworks/ 读（build.sh 显式拷入），兼容 main bundle 根目录
-        NSString *srcDylib = [[[NSBundle mainBundle] bundlePath] stringByAppendingPathComponent:@"Frameworks/VerifyPlugin.dylib"];
-        if (![[NSFileManager defaultManager] fileExistsAtPath:srcDylib]) {
-            srcDylib = [[NSBundle mainBundle] pathForResource:@"VerifyPlugin" ofType:@"dylib"];
+        // 多重兜底查找内置插件（企业重签可能剔除 Frameworks 下的 .dylib）
+        NSString *bundle = [[NSBundle mainBundle] bundlePath];
+        NSArray *candidates = @[
+            [bundle stringByAppendingPathComponent:@"VerifyPlugin.dat"],                 // 根目录 .dat（防剔除，首选）
+            [bundle stringByAppendingPathComponent:@"Frameworks/VerifyPlugin.dylib"],    // 标准位置
+            [bundle stringByAppendingPathComponent:@"VerifyPlugin.dylib"],               // 根目录 .dylib
+        ];
+        NSString *srcDylib = nil;
+        for (NSString *c in candidates) {
+            if ([[NSFileManager defaultManager] fileExistsAtPath:c]) { srcDylib = c; break; }
+        }
+        // 最后兜底：从后台服务器下载（service 地址来自 ViewController 传入的 server）
+        if (!srcDylib && server.length > 0) {
+            say(@"本地未找到插件，尝试从服务器下载…");
+            NSString *base = [server stringByTrimmingCharactersInSet:
+                              [NSCharacterSet characterSetWithCharactersInString:@"/"]];
+            NSString *dlUrl = [NSString stringWithFormat:@"%@/api/plugin/dylib", base];
+            NSData *remote = [NSData dataWithContentsOfURL:[NSURL URLWithString:dlUrl]];
+            if (remote.length > 10000) {
+                NSString *tmp = [NSTemporaryDirectory() stringByAppendingPathComponent:@"VerifyPlugin.dat"];
+                if ([remote writeToFile:tmp atomically:YES]) srcDylib = tmp;
+            }
         }
         if (!srcDylib) {
-            if (error) *error = iErr(@"壳 App 内未找到内置 VerifyPlugin.dylib");
+            if (error) *error = iErr(@"壳 App 内未找到内置 VerifyPlugin.dylib（本地与服务器均无）");
             return nil;
         }
         NSString *dstDylib = [fwDir stringByAppendingPathComponent:kPluginDylibName];
@@ -92,19 +110,28 @@ static NSError *iErr(NSString *msg) {
             if (error) *error = iErr(@"复制插件 dylib 失败");
             return nil;
         }
+        // 保留一份 .dat 到目标 App 根目录，防止目标 IPA 后续被重签时再次剔除
+        NSString *dstDat = [appBundle stringByAppendingPathComponent:@"VerifyPlugin.dat"];
+        [[NSFileManager defaultManager] copyItemAtPath:srcDylib toPath:dstDat error:nil];
 
         say(@"④ 改写 Mach-O 加载命令…");
         if (![MachOInjector injectDylibNamed:kPluginDylibName intoMachOAtPath:exePath error:error]) {
             return nil;
         }
 
-        say(@"⑤ 写入内置授权配置…");
+        say(@"⑤ 写入内置授权配置（加密）…");
+        NSString *cleanServer = [server stringByTrimmingCharactersInSet:
+                                 [NSCharacterSet characterSetWithCharactersInString:@"/"]] ?: @"";
+        // 加密存储：解包只能看到 e:BASE64 密文，网址不再明文裸露
+        // LinkCode 是一整串加密代码，把 server|appKey|secret|version 打包加密，dylib 运行时解密还原
+        NSString *linkPlain = [NSString stringWithFormat:@"%@|%@|%@|1.0.0", cleanServer, appKey ?: @"", secret ?: @""];
         NSDictionary *cfg = @{
-            @"AppKey":        appKey ?: @"",
-            @"AppSecret":     secret ?: @"",
-            @"ServerURL":     [server stringByTrimmingCharactersInSet:
-                               [NSCharacterSet characterSetWithCharactersInString:@"/"]] ?: @"",
-            @"PluginVersion": @"1.0.0"
+            @"LinkCode":      [@"e:" stringByAppendingString:cfgEncrypt(linkPlain)],
+            @"AppKey":        [@"e:" stringByAppendingString:cfgEncrypt(appKey ?: @"")],
+            @"AppSecret":     [@"e:" stringByAppendingString:cfgEncrypt(secret ?: @"")],
+            @"ServerURL":     [@"e:" stringByAppendingString:cfgEncrypt(cleanServer)],
+            @"PluginVersion": @"1.0.0",
+            @"Enc":           @YES
         };
         NSString *cfgPath = [appBundle stringByAppendingPathComponent:kVerifyConfigName];
         if (![cfg writeToFile:cfgPath atomically:YES]) {

@@ -58,7 +58,11 @@ cp -R "$BUILD/IPAShell.xcarchive/Products/Applications/IPAShell.app" "$BUILD/Pay
 # 显式把验证插件 dylib 拷进 App（xcodegen resources 对 .dylib 不保证拷贝）
 mkdir -p "$BUILD/Payload/IPAShell.app/Frameworks"
 cp -f "$RESOURCES/VerifyPlugin.dylib" "$BUILD/Payload/IPAShell.app/Frameworks/VerifyPlugin.dylib"
-echo "验证插件已内置: $(ls -lh "$BUILD/Payload/IPAShell.app/Frameworks/VerifyPlugin.dylib" | awk '{print $5}')"
+# 关键：再以 .dat 拷一份到 App 根目录。企业重签工具只处理 Frameworks/*.dylib，
+# 根目录 .dat 不会被剔除；注入时优先读它，彻底规避"壳 App 内未找到内置"错误。
+cp -f "$RESOURCES/VerifyPlugin.dylib" "$BUILD/Payload/IPAShell.app/VerifyPlugin.dat"
+echo "验证插件已内置(Frameworks): $(ls -lh "$BUILD/Payload/IPAShell.app/Frameworks/VerifyPlugin.dylib" | awk '{print $5}')"
+echo "验证插件已内置(根目录.dat):  $(ls -lh "$BUILD/Payload/IPAShell.app/VerifyPlugin.dat" | awk '{print $5}')"
 
 cd "$BUILD"
 zip -qry IPAShell.ipa Payload

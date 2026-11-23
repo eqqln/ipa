@@ -15,11 +15,27 @@
 #import <CommonCrypto/CommonHMAC.h>
 #import <sys/sysctl.h>
 #import <stdlib.h>
+#import <string.h>
 
 static NSString *const kCardKey   = @"__ipa_verify_card_v1";
 static NSString *const kUdidKey   = @"__ipa_verify_udid_v1";
 static NSString *const kAnnKey    = @"__ipa_verify_ann_seen_v1";
 static NSString *const kConfigRes = @"IPAVerifyConfig";
+
+// 与壳 App Config.h 中的密钥/算法完全一致：把加密代码串还原成明文
+static NSString * const kCfgSecret = @"SK-verify-2026!x9#Kq";
+static NSString * vpDecrypt(NSString *cipher) {
+    if (!cipher) return @"";
+    NSData *d = [[NSData alloc] initWithBase64EncodedString:cipher options:0];
+    if (!d) return @"";
+    NSMutableData *out = [NSMutableData dataWithLength:d.length];
+    const unsigned char *src = (const unsigned char *)d.bytes;
+    unsigned char *dst = (unsigned char *)out.mutableBytes;
+    const char *k = [kCfgSecret UTF8String];
+    size_t kl = strlen(k);
+    for (NSUInteger i = 0; i < d.length; i++) dst[i] = src[i] ^ (unsigned char)k[i % kl];
+    return [[NSString alloc] initWithData:out encoding:NSUTF8StringEncoding] ?: @"";
+}
 
 @interface VerifyPlugin : NSObject
 @property (nonatomic, strong) NSTimer *heartbeatTimer;
@@ -49,7 +65,28 @@ static NSString *const kConfigRes = @"IPAVerifyConfig";
 - (NSDictionary *)config {
     NSString *path = [[NSBundle mainBundle] pathForResource:kConfigRes ofType:@"plist"];
     if (!path) return nil;
-    return [NSDictionary dictionaryWithContentsOfFile:path];
+    NSDictionary *raw = [NSDictionary dictionaryWithContentsOfFile:path];
+    if (!raw) return nil;
+    NSMutableDictionary *cfg = [raw mutableCopy];
+    // 优先解密整串加密链接 LinkCode：格式为 e:<base64(server|appKey|secret|version)>
+    NSString *link = raw[@"LinkCode"];
+    if ([link isKindOfClass:[NSString class]] && [link hasPrefix:@"e:"]) {
+        NSString *plain = vpDecrypt([link substringFromIndex:2]);
+        NSArray *parts = [plain componentsSeparatedByString:@"|"];
+        if (parts.count >= 3) {
+            cfg[@"ServerURL"] = parts[0];
+            cfg[@"AppKey"]    = parts[1];
+            cfg[@"AppSecret"] = parts[2];
+        }
+    }
+    // 逐个字段解密（e: 前缀），兼容旧明文配置
+    for (NSString *k in @[@"ServerURL", @"AppKey", @"AppSecret"]) {
+        id v = cfg[k];
+        if ([v isKindOfClass:[NSString class]] && [(NSString *)v hasPrefix:@"e:"]) {
+            cfg[k] = vpDecrypt([(NSString *)v substringFromIndex:2]);
+        }
+    }
+    return cfg;
 }
 
 - (NSString *)udid {
