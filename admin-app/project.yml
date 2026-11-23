@@ -1,0 +1,48 @@
+# xcodegen 配置：GitHub Actions 上生成 .xcodeproj 再交给 xcodebuild 编译
+# 纯 UIKit + WebKit，无越狱依赖，产出未签名 IPA 由全能签重签安装
+name: AdminConsole
+
+options:
+  bundleIdPrefix: com.ipashell
+  deploymentTarget:
+    iOS: "15.0"
+  createIntermediateGroups: true
+
+settings:
+  CODE_SIGNING_ALLOWED: NO
+  CODE_SIGNING_REQUIRED: NO
+  CODE_SIGN_IDENTITY: ""
+  IPHONEOS_DEPLOYMENT_TARGET: "15.0"
+  MARKETING_VERSION: "1.0.0"
+  CURRENT_PROJECT_VERSION: "1"
+  SUPPORTED_PLATFORMS: iphoneos
+
+targets:
+  AdminConsole:
+    type: application
+    platform: iOS
+    sources:
+      - path: Sources
+    dependencies:
+      - sdk: WebKit.framework
+    info:
+      path: Info.plist
+      properties:
+        CFBundleDisplayName: "授权中心"
+        CFBundleName: "AdminConsole"
+        CFBundleIdentifier: "com.ipashell.admin"
+        NSAppTransportSecurity:
+          NSAllowsArbitraryLoads: true
+        UILaunchScreen: {}
+        UIViewControllerBasedStatusBarAppearance: false
+        UIStatusBarStyle: "UIStatusBarStyleDefault"
+        UISupportedInterfaceOrientations:
+          - UIInterfaceOrientationPortrait
+          - UIInterfaceOrientationLandscapeLeft
+          - UIInterfaceOrientationLandscapeRight
+    settings:
+      PRODUCT_NAME: AdminConsole
+      PRODUCT_BUNDLE_IDENTIFIER: com.ipashell.admin
+      CODE_SIGNING_ALLOWED: NO
+      CODE_SIGNING_REQUIRED: NO
+      CODE_SIGN_IDENTITY: ""

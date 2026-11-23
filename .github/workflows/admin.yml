@@ -1,0 +1,40 @@
+# GitHub Actions 自动编译：后台管理客户端 App（纯 WebView 壳）
+# 手动触发 -> 产出未签名 AdminConsole.ipa
+name: 编译后台管理 IPA
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: macos-latest
+    timeout-minutes: 25
+    steps:
+      - name: 检出源码
+        uses: actions/checkout@v4
+
+      - name: 安装 xcodegen
+        run: brew install xcodegen
+
+      - name: 查看 Xcode 版本
+        run: xcodebuild -version
+
+      - name: 编译后台客户端（build.sh 内含 xcodegen + archive + 打包）
+        run: |
+          chmod +x admin-app/build.sh
+          bash admin-app/build.sh
+
+      - name: 上传 IPA 作为构建产物
+        uses: actions/upload-artifact@v4
+        with:
+          name: AdminConsole
+          path: admin-app/build/AdminConsole.ipa
+          if-no-files-found: error
+
+      - name: 生成下载说明
+        run: |
+          echo "## ✅ 后台管理客户端编译完成" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "在页面下方 **Artifacts** 下载 \`AdminConsole.zip\`，解压得到 \`AdminConsole.ipa\`。" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "该 IPA **未签名**，用全能签导入并选择你的证书重签后安装。安装后打开即为后台管理界面。" >> $GITHUB_STEP_SUMMARY
