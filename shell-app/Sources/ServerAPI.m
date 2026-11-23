@@ -31,7 +31,7 @@ static NSString *cleanServer(NSString *server) {
                                                              @"password": password ?: @"" }
                                                    options:0 error:nil];
 
-    [[NSURLSession sharedSession] dataTaskWithRequest:req
+    NSURLSessionDataTask *task = [[NSURLSession sharedSession] dataTaskWithRequest:req
         completionHandler:^(NSData *data, NSURLResponse *response, NSError *error) {
         if (error || !data) {
             completion(NO, nil, @"无法连接服务器，请检查地址与网络");
@@ -46,7 +46,8 @@ static NSString *cleanServer(NSString *server) {
         NSString *setCookie = [((NSHTTPURLResponse *)response).allHeaderFields objectForKey:@"Set-Cookie"];
         NSString *cookie = [[setCookie componentsSeparatedByString:@";"] firstObject] ?: @"";
         completion(YES, cookie, @"登录成功");
-    }] resume];
+    }];
+    [task resume];
 }
 
 + (void)fetchAppsFromServer:(NSString *)server
@@ -58,7 +59,7 @@ static NSString *cleanServer(NSString *server) {
                                                   timeoutInterval:15];
     if (cookie.length) [req setValue:cookie forHTTPHeaderField:@"Cookie"];
 
-    [[NSURLSession sharedSession] dataTaskWithRequest:req
+    NSURLSessionDataTask *task = [[NSURLSession sharedSession] dataTaskWithRequest:req
         completionHandler:^(NSData *data, NSURLResponse *response, NSError *error) {
         if (error || !data) {
             completion(NO, nil, @"获取应用列表失败");
@@ -70,7 +71,8 @@ static NSString *cleanServer(NSString *server) {
             return;
         }
         completion(YES, json[@"data"] ?: @[], nil);
-    }] resume];
+    }];
+    [task resume];
 }
 
 @end
