@@ -21,3 +21,6 @@ mobile/android/app/src/main/assets/public/
 mobile/ios/App/build/
 mobile/ios/DerivedData/
 mobile/ios/App/App/public/
+
+# GitHub 本地访问令牌（绝不推送）
+docs/.gh_token

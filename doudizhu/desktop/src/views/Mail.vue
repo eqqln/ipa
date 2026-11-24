@@ -97,7 +97,7 @@ onMounted(load)
 .mail-page { max-width: 900px; margin: 0 auto; }
 .page-head { margin-bottom: 16px; }
 .mail-card { padding: 10px; }
-.mail-row { display: flex; gap: 14px; align-items: flex-start; padding: 14px; border-radius: 12px; margin-bottom: 8px; background: rgba(0,0,0,.18); cursor: pointer; border: 1px solid transparent; transition: all .18s; }
+.mail-row { display: flex; gap: 14px; align-items: flex-start; padding: 14px; border-radius: 12px; margin-bottom: 8px; background: rgba(30, 122, 224, 0.05); cursor: pointer; border: 1px solid transparent; transition: all .18s; }
 .mail-row.unread { background: rgba(238,203,106,.07); border-color: var(--line); }
 .mail-row:hover { border-color: var(--line-strong); }
 .mail-icon { font-size: 30px; }

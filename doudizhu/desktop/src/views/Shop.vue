@@ -130,7 +130,7 @@ onMounted(loadShop)
 .price-btn.coin { background: rgba(238,203,106,.14); border-color: var(--gold-500); color: var(--gold-300); }
 .price-btn.diamond { background: rgba(143,216,255,.12); border-color: rgba(143,216,255,.5); color: #8fd8ff; }
 .bag-card { padding: 12px; }
-.bag-row { display: flex; align-items: center; gap: 14px; padding: 12px; border-radius: 10px; background: rgba(0,0,0,.2); margin-bottom: 8px; }
+.bag-row { display: flex; align-items: center; gap: 14px; padding: 12px; border-radius: 10px; background: rgba(30, 122, 224, 0.05); margin-bottom: 8px; }
 .bag-icon { font-size: 34px; }
 .bag-info { flex: 1; display: flex; flex-direction: column; gap: 3px; }
 .bag-info b { font-size: 14px; }

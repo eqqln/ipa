@@ -86,7 +86,7 @@ onMounted(load)
 .tabs button.active { background: linear-gradient(135deg, var(--green-500), var(--green-700)); color: var(--gold-300); }
 .progress-text { margin-left: auto; font-size: 12px; color: var(--ink-mute); padding-right: 10px; }
 .task-card { padding: 12px; }
-.task-row { display: flex; gap: 14px; align-items: center; padding: 14px; border-radius: 12px; background: rgba(0,0,0,.2); margin-bottom: 8px; }
+.task-row { display: flex; gap: 14px; align-items: center; padding: 14px; border-radius: 12px; background: rgba(30, 122, 224, 0.05); margin-bottom: 8px; }
 .task-icon { font-size: 30px; }
 .task-main { flex: 1; min-width: 0; }
 .task-title { font-weight: 700; font-size: 15px; }

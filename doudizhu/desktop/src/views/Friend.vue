@@ -157,7 +157,7 @@ function sendChat() {
 .search-box { display: flex; gap: 6px; margin-bottom: 12px; }
 .search-results { margin-bottom: 12px; padding-bottom: 12px; border-bottom: 1px solid var(--line); }
 .search-title { font-size: 12px; margin-bottom: 6px; }
-.friend-row { display: flex; align-items: center; gap: 10px; padding: 9px 10px; border-radius: 10px; margin-bottom: 6px; background: rgba(0,0,0,.18); cursor: pointer; transition: background .18s; }
+.friend-row { display: flex; align-items: center; gap: 10px; padding: 9px 10px; border-radius: 10px; margin-bottom: 6px; background: rgba(30, 122, 224, 0.05); cursor: pointer; transition: background .18s; }
 .friend-row:hover, .friend-row.active { background: rgba(238,203,106,.1); }
 .f-name { flex: 1; font-size: 13px; font-weight: 600; display: flex; align-items: center; gap: 6px; }
 .f-name small { font-size: 11px; font-weight: 400; }
@@ -166,7 +166,7 @@ function sendChat() {
 .chat-box { display: flex; flex-direction: column; min-height: 480px; }
 .chat-head { display: flex; align-items: center; gap: 10px; padding-bottom: 12px; border-bottom: 1px solid var(--line); font-size: 15px; }
 .chat-msgs { flex: 1; overflow-y: auto; padding: 16px 0; display: flex; flex-direction: column; gap: 8px; }
-.bubble { max-width: 72%; padding: 9px 13px; border-radius: 12px; font-size: 13px; line-height: 1.5; background: rgba(0,0,0,.3); align-self: flex-start; }
+.bubble { max-width: 72%; padding: 9px 13px; border-radius: 12px; font-size: 13px; line-height: 1.5; background: rgba(30, 122, 224, 0.05); align-self: flex-start; }
 .bubble.mine { align-self: flex-end; background: linear-gradient(135deg, var(--green-600), var(--green-700)); color: var(--ink); }
 .chat-send { display: flex; gap: 8px; }
 @media (max-width: 720px) { .friend-layout { grid-template-columns: 1fr; } }

@@ -120,7 +120,7 @@ onMounted(load)
 .profile-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 18px; }
 .section { padding: 20px; }
 .stats-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
-.stat-box { text-align: center; padding: 12px 6px; border-radius: 10px; background: rgba(0,0,0,.24); }
+.stat-box { text-align: center; padding: 12px 6px; border-radius: 10px; background: rgba(30, 122, 224, 0.05); }
 .stat-box b { display: block; font-size: 20px; margin-bottom: 3px; }
 .stat-box span { font-size: 11px; color: var(--ink-mute); }
 .exp-section { margin-top: 16px; }

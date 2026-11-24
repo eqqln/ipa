@@ -51,9 +51,9 @@ async function onMaximize() {
   display: flex;
   align-items: center;
   flex-shrink: 0;
-  background: linear-gradient(180deg, #0a2b20, #071d16);
-  border-bottom: 1px solid rgba(238, 203, 106, 0.22);
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.25);
+  background: linear-gradient(180deg, #ffffff, #f4f8fd);
+  border-bottom: 1px solid rgba(21, 101, 192, 0.12);
+  box-shadow: 0 2px 10px rgba(24, 45, 80, 0.08);
   color: var(--ink);
   user-select: none;
   z-index: 3000;
@@ -74,7 +74,7 @@ async function onMaximize() {
 
 .tb-logo {
   font-size: 16px;
-  filter: drop-shadow(0 1px 4px rgba(238, 203, 106, 0.5));
+  filter: drop-shadow(0 1px 4px rgba(21,101,192,.35));
 }
 
 .tb-title {

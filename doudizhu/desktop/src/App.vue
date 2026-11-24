@@ -158,7 +158,7 @@ const isAuthed = computed(() => !!store.token)
   display: flex;
   flex-direction: column;
   overflow: hidden;
-  background: #061a14;
+  background: #ffffff;
 }
 
 .desktop-content {
@@ -183,17 +183,17 @@ const isAuthed = computed(() => !!store.token)
   position: sticky; top: 0; z-index: 100;
   display: flex; align-items: center; gap: 20px;
   padding: 10px 22px;
-  background: linear-gradient(180deg, rgba(6, 26, 20, .98), rgba(6, 26, 20, .9));
+  background: linear-gradient(180deg, #ffffff, #f7faff);
   border-bottom: 1px solid var(--line);
-  box-shadow: 0 6px 24px rgba(0, 0, 0, .3);
+  box-shadow: 0 6px 24px rgba(24, 45, 80, .08);
   flex-wrap: wrap;
 }
 
 .brand { display: flex; align-items: center; gap: 8px; cursor: pointer; flex-shrink: 0; }
-.brand-logo { font-size: 28px; filter: drop-shadow(0 2px 6px rgba(238,203,106,.5)); }
+.brand-logo { font-size: 28px; filter: drop-shadow(0 2px 6px rgba(21,101,192,.28)); }
 .brand-name {
   font-size: 19px; font-weight: 900; letter-spacing: 1px;
-  background: linear-gradient(90deg, var(--gold-300), var(--gold-500));
+  background: linear-gradient(90deg, var(--brand-600), var(--green-600));
   -webkit-background-clip: text; background-clip: text; color: transparent;
 }
 
@@ -207,10 +207,10 @@ const isAuthed = computed(() => !!store.token)
   font-size: 13px; font-weight: 600;
   transition: all .18s ease;
 }
-.nav-item:hover { background: rgba(238, 203, 106, .08); color: var(--ink); }
+.nav-item:hover { background: var(--brand-100); color: var(--brand-600); }
 .nav-item.active {
-  background: linear-gradient(135deg, rgba(238, 203, 106, .2), rgba(238, 203, 106, .06));
-  color: var(--gold-300);
+  background: linear-gradient(135deg, var(--brand-100), rgba(30,122,224,.06));
+  color: var(--brand-600);
   box-shadow: inset 0 0 0 1px var(--line-strong);
 }
 .nav-icon { font-size: 15px; }
@@ -230,12 +230,12 @@ const isAuthed = computed(() => !!store.token)
   font-size: 12px; font-weight: 700;
   padding: 6px 11px; border-radius: 999px;
   border: 1px solid var(--line);
-  background: rgba(0, 0, 0, .25);
+  background: rgba(30, 122, 224, 0.05);
   white-space: nowrap;
 }
-.gold-chip { color: var(--gold-300); }
-.diamond-chip { color: #8fd8ff; }
-.level-chip { color: #b7e6c9; }
+.gold-chip { color: var(--gold-500); }
+.diamond-chip { color: #1e7ae0; }
+.level-chip { color: var(--green-600); }
 .avatar-btn, .logout-btn {
   background: none; border: none; cursor: pointer;
   display: inline-flex; align-items: center;

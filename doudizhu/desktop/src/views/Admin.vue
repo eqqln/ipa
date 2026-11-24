@@ -269,11 +269,11 @@ onMounted(loadDashboard)
 .data-table td { padding: 10px; border-bottom: 1px solid rgba(255,255,255,.05); }
 .data-table tr:hover td { background: rgba(238,203,106,.04); }
 .row-actions { display: flex; gap: 5px; align-items: center; }
-.mini-input { width: 62px; padding: 6px; border-radius: 6px; background: rgba(0,0,0,.3); border: 1px solid var(--line); color: var(--ink); font-size: 11px; }
+.mini-input { width: 62px; padding: 6px; border-radius: 6px; background: rgba(30, 122, 224, 0.05); border: 1px solid var(--line); color: var(--ink); font-size: 11px; }
 .pagination { display: flex; align-items: center; justify-content: center; gap: 14px; padding: 16px; font-size: 13px; color: var(--ink-soft); }
 .check { display: flex; align-items: center; gap: 8px; font-size: 13px; color: var(--ink-soft); margin-bottom: 12px; }
 .admin-split { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
-.list-row { display: flex; align-items: center; gap: 12px; padding: 12px; border-radius: 10px; background: rgba(0,0,0,.18); margin-bottom: 8px; }
+.list-row { display: flex; align-items: center; gap: 12px; padding: 12px; border-radius: 10px; background: rgba(30, 122, 224, 0.05); margin-bottom: 8px; }
 .list-row > div:first-child { flex: 1; min-width: 0; }
 .list-row b { font-size: 13px; }
 .small { font-size: 11px; margin: 4px 0 0; }

@@ -148,7 +148,7 @@ async function submit() {
 .login-card { padding: 30px 32px; }
 .tabs {
   display: flex; gap: 6px;
-  background: rgba(0, 0, 0, .3);
+  background: rgba(30, 122, 224, 0.05);
   padding: 5px; border-radius: 12px; margin-bottom: 22px;
 }
 .tabs button {

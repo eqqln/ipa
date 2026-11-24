@@ -275,7 +275,7 @@ onMounted(() => {
   grid-template-columns: 1.4fr 2fr auto;
   gap: 24px; align-items: center;
   padding: 20px 24px;
-  background: linear-gradient(120deg, rgba(26, 92, 67, .65), rgba(6, 26, 20, .92));
+  background: linear-gradient(120deg, var(--brand-100), #ffffff);
 }
 .user-main { display: flex; align-items: center; gap: 14px; }
 .avatar.big { width: 64px; height: 64px; font-size: 32px; }
@@ -285,7 +285,7 @@ onMounted(() => {
 .exp-bar .progress { width: 130px; }
 .exp-bar span { font-size: 11px; }
 .user-stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
-.stat { text-align: center; padding: 10px 6px; border-radius: 10px; background: rgba(0, 0, 0, .22); }
+.stat { text-align: center; padding: 10px 6px; border-radius: 10px; background: rgba(30, 122, 224, 0.05); }
 .stat-num { display: block; font-size: 20px; font-weight: 900; color: var(--gold-300); }
 .stat-num.diamond { color: #8fd8ff; }
 .stat-label { font-size: 11px; color: var(--ink-mute); }
@@ -293,17 +293,17 @@ onMounted(() => {
 
 .lobby-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 18px; }
 .section { padding: 20px; }
-.seg { display: flex; gap: 6px; background: rgba(0,0,0,.25); padding: 5px; border-radius: 10px; }
+.seg { display: flex; gap: 6px; background: rgba(30, 122, 224, 0.05); padding: 5px; border-radius: 10px; }
 .seg button {
   flex: 1; padding: 9px; border: none; border-radius: 7px;
   background: transparent; color: var(--ink-soft);
   font-size: 13px; font-weight: 600; cursor: pointer; transition: all .18s;
 }
-.seg button.active { background: linear-gradient(135deg, var(--green-600), var(--green-700)); color: var(--gold-300); }
-.seg.scores button.active { background: linear-gradient(135deg, var(--gold-400), var(--gold-600)); color: #3a2a06; }
+.seg button.active { background: linear-gradient(135deg, var(--green-400), var(--green-600)); color: #fff; box-shadow: 0 4px 12px rgba(26,168,120,.28); }
+.seg.scores button.active { background: linear-gradient(135deg, var(--brand-400), var(--brand-600)); color: #fff; box-shadow: 0 4px 12px rgba(30,122,224,.28); }
 .game-tabs { margin-bottom: 12px; }
 .game-tabs button { font-size: 15px; font-weight: 700; }
-.mj-rule-box { background: rgba(0,0,0,.2); border: 1px solid var(--line); border-radius: 10px; padding: 10px 12px; margin-bottom: 12px; }
+.mj-rule-box { background: rgba(30, 122, 224, 0.05); border: 1px solid var(--line); border-radius: 10px; padding: 10px 12px; margin-bottom: 12px; }
 .check-line { display: flex; align-items: center; gap: 8px; font-size: 13px; padding: 4px 0; cursor: pointer; }
 .check-line input { accent-color: var(--gold-400); width: 15px; height: 15px; }
 .mj-hint { font-size: 11px; color: var(--muted); margin-top: 6px; }
@@ -313,14 +313,14 @@ onMounted(() => {
 .room-item {
   display: flex; align-items: center; gap: 12px;
   padding: 10px 12px; border-radius: 10px;
-  background: rgba(0, 0, 0, .2); border: 1px solid var(--line);
+  background: rgba(30, 122, 224, 0.05); border: 1px solid var(--line);
 }
 .room-icon { font-size: 24px; }
 .room-info { flex: 1; min-width: 0; }
 .room-name { font-weight: 700; font-size: 14px; }
 .room-sub { font-size: 11px; margin-top: 2px; }
 .room-right { display: flex; align-items: center; gap: 8px; }
-.ann-item { display: flex; gap: 8px; padding: 9px 12px; border-radius: 10px; background: rgba(0,0,0,.18); }
+.ann-item { display: flex; gap: 8px; padding: 9px 12px; border-radius: 10px; background: rgba(30, 122, 224, 0.05); }
 .ann-pin { font-size: 14px; }
 .ann-title { font-weight: 700; font-size: 13px; color: var(--gold-300); }
 .ann-content { font-size: 12px; margin-top: 2px; line-height: 1.5; }
@@ -329,7 +329,7 @@ onMounted(() => {
 .quick-item {
   display: flex; flex-direction: column; align-items: center; gap: 6px;
   padding: 16px 8px; border-radius: 12px; cursor: pointer;
-  background: rgba(0, 0, 0, .22); border: 1px solid var(--line);
+  background: rgba(30, 122, 224, 0.05); border: 1px solid var(--line);
   color: var(--ink); font-size: 12px; font-weight: 600;
   transition: all .18s;
 }

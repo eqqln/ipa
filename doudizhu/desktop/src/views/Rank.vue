@@ -98,7 +98,7 @@ onMounted(load)
 .rank-card { padding: 8px; }
 .rank-row { display: grid; grid-template-columns: 70px 1fr 80px 120px 120px; align-items: center; gap: 8px; padding: 11px 14px; border-radius: 9px; font-size: 13px; }
 .rank-row.head { color: var(--ink-mute); font-size: 12px; font-weight: 700; }
-.rank-row:not(.head):nth-child(even) { background: rgba(0,0,0,.16); }
+.rank-row:not(.head):nth-child(even) { background: rgba(30, 122, 224, 0.05); }
 .rank-row.me { background: rgba(238,203,106,.12); border: 1px solid var(--line-strong); }
 .rank-row.top3 { background: rgba(238,203,106,.06); }
 .medal { font-size: 22px; }
