@@ -11,7 +11,7 @@ permissions:
 jobs:
   build-ios:
     name: iOS 未签名 IPA
-    runs-on: macos-14
+    runs-on: macos-latest
     timeout-minutes: 60
     steps:
       - name: 拉取代码
