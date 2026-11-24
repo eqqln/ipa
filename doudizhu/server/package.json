@@ -1,0 +1,20 @@
+{
+  "name": "doudizhu-server",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "商业级斗地主游戏服务器 - 实时对战/经济系统/运营管理",
+  "scripts": {
+    "dev": "node --watch src/index.js",
+    "start": "node src/index.js",
+    "test": "node --test src/game/__tests__/*.test.js src/mahjong/__tests__/*.test.js src/admin/__tests__/*.test.js"
+  },
+  "dependencies": {
+    "bcryptjs": "^2.4.3",
+    "cors": "^2.8.5",
+    "express": "^4.19.2",
+    "jsonwebtoken": "^9.0.2",
+    "nanoid": "^5.0.7",
+    "socket.io": "^4.7.5"
+  }
+}
