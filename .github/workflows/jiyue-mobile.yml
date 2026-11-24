@@ -31,6 +31,14 @@ jobs:
         working-directory: doudizhu/mobile
         run: npm ci
 
+      - name: 链接依赖到 desktop 构建根
+        working-directory: doudizhu
+        run: |
+          if [ ! -d desktop/node_modules ]; then
+            ln -s ../mobile/node_modules desktop/node_modules
+          fi
+          ls -ld desktop/node_modules
+
       - name: 构建 Web 资源
         working-directory: doudizhu/mobile
         run: npm run build
@@ -89,6 +97,14 @@ jobs:
       - name: 安装依赖
         working-directory: doudizhu/mobile
         run: npm ci
+
+      - name: 链接依赖到 desktop 构建根
+        working-directory: doudizhu
+        run: |
+          if [ ! -d desktop/node_modules ]; then
+            ln -s ../mobile/node_modules desktop/node_modules
+          fi
+          ls -ld desktop/node_modules
 
       - name: 构建 Web 资源
         working-directory: doudizhu/mobile

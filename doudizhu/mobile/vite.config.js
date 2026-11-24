@@ -18,6 +18,10 @@ export default defineConfig({
     alias: {
       '@': path.join(desktopRoot, 'src'),
     },
+    // 依赖实际安装在 mobile/node_modules，而构建 root 是 desktop/，
+    // 显式声明模块搜索目录，保证 CI 与本地都能解析 vue 等依赖
+    modules: [path.resolve(here, 'node_modules'), 'node_modules'],
+    dedupe: ['vue', 'vue-router', 'pinia', 'axios', 'socket.io-client', '@capacitor/core'],
   },
   build: {
     outDir,
