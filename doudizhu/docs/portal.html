@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>极跃棋牌 · 企业级运营系统</title>
+  <style>
+    :root {
+      --bg: #050b10;
+      --panel: rgba(13, 28, 34, 0.78);
+      --line: rgba(233, 200, 130, 0.18);
+      --gold: #e9c878;
+      --gold-soft: #fff0c4;
+      --mint: #54d6ad;
+      --text: #eef5f2;
+      --muted: #8fa6a0;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
+      color: var(--text);
+      background:
+        radial-gradient(circle at 14% 12%, rgba(84, 214, 173, 0.13), transparent 34%),
+        radial-gradient(circle at 86% 18%, rgba(233, 200, 120, 0.10), transparent 32%),
+        radial-gradient(circle at 50% 100%, rgba(24, 96, 86, 0.22), transparent 48%),
+        linear-gradient(180deg, #050b10 0%, #07151a 58%, #04090d 100%);
+      overflow-x: hidden;
+    }
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image:
+        linear-gradient(rgba(255,255,255,.018) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,.018) 1px, transparent 1px);
+      background-size: 56px 56px;
+      mask-image: linear-gradient(to bottom, black, transparent 82%);
+      pointer-events: none;
+    }
+    .page { position: relative; max-width: 1180px; margin: 0 auto; padding: 64px 28px 40px; }
+    .nav { display: flex; align-items: center; justify-content: space-between; gap: 20px; }
+    .logo { display: flex; align-items: center; gap: 12px; font-weight: 800; letter-spacing: 1px; }
+    .logo-mark {
+      width: 40px; height: 40px; border-radius: 12px;
+      display: grid; place-items: center;
+      background: linear-gradient(135deg, #f6df9f, #c99a35);
+      color: #18210c; font-size: 20px;
+      box-shadow: 0 10px 30px rgba(233, 200, 120, .22);
+    }
+    .logo-text { font-size: 18px; }
+    .logo-text small { display: block; font-size: 10px; font-weight: 500; letter-spacing: 2.4px; color: var(--muted); }
+    .status {
+      display: inline-flex; align-items: center; gap: 8px;
+      padding: 8px 14px; border-radius: 999px;
+      background: rgba(84, 214, 173, .08);
+      border: 1px solid rgba(84, 214, 173, .24);
+      color: #a9e8d1; font-size: 12px;
+    }
+    .status i { width: 7px; height: 7px; border-radius: 50%; background: var(--mint); box-shadow: 0 0 12px var(--mint); }
+
+    .hero { padding: 82px 0 52px; text-align: center; }
+    .eyebrow { color: var(--gold); letter-spacing: 5px; font-size: 12px; font-weight: 700; }
+    h1 {
+      margin: 18px 0 14px;
+      font-size: clamp(40px, 6vw, 72px);
+      line-height: 1.08;
+      letter-spacing: -2px;
+      background: linear-gradient(180deg, #fff8df 10%, #d7b45f 92%);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+    }
+    .hero p { max-width: 680px; margin: 0 auto; color: var(--muted); font-size: 16px; line-height: 1.9; }
+    .chips { margin-top: 28px; display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; }
+    .chip {
+      padding: 8px 14px; border-radius: 999px; font-size: 12px;
+      border: 1px solid var(--line); background: rgba(255,255,255,.025); color: #c8d8d3;
+    }
+
+    .entries { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 22px; margin-top: 20px; }
+    .entry {
+      position: relative; overflow: hidden;
+      display: block; padding: 34px;
+      border-radius: 24px;
+      border: 1px solid var(--line);
+      background: linear-gradient(155deg, rgba(18, 43, 50, .86), rgba(7, 18, 23, .92));
+      box-shadow: 0 24px 70px rgba(0,0,0,.35);
+      color: var(--text); text-decoration: none;
+      transition: transform .25s ease, border-color .25s ease, box-shadow .25s ease;
+    }
+    .entry::after {
+      content: ''; position: absolute; width: 220px; height: 220px; right: -80px; top: -90px;
+      background: radial-gradient(circle, rgba(233,200,120,.18), transparent 68%);
+    }
+    .entry:hover { transform: translateY(-8px); border-color: rgba(233,200,120,.48); box-shadow: 0 30px 80px rgba(0,0,0,.45); }
+    .entry .icon {
+      width: 56px; height: 56px; border-radius: 16px;
+      display: grid; place-items: center; font-size: 28px;
+      background: rgba(233,200,120,.1); border: 1px solid var(--line);
+    }
+    .entry h2 { margin: 22px 0 8px; font-size: 24px; }
+    .entry p { margin: 0; color: var(--muted); font-size: 14px; line-height: 1.8; }
+    .entry .arrow { margin-top: 24px; color: var(--gold); font-size: 14px; font-weight: 700; }
+
+    .features { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin-top: 48px; }
+    .feature {
+      padding: 20px; border-radius: 16px;
+      background: rgba(255,255,255,.022);
+      border: 1px solid rgba(255,255,255,.05);
+    }
+    .feature b { display: block; color: var(--gold-soft); font-size: 15px; margin-bottom: 6px; }
+    .feature span { color: var(--muted); font-size: 12px; line-height: 1.6; }
+    .footer { text-align: center; color: #546863; font-size: 12px; padding-top: 42px; }
+    @media (max-width: 820px) {
+      .page { padding: 32px 18px; }
+      .hero { padding: 52px 0 32px; }
+      .entries, .features { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <nav class="nav">
+      <div class="logo">
+        <div class="logo-mark">极</div>
+        <div class="logo-text">极跃棋牌<small>JIYUE GAME SYSTEM</small></div>
+      </div>
+      <div class="status"><i></i>生产系统运行中</div>
+    </nav>
+
+    <section class="hero">
+      <div class="eyebrow">ENTERPRISE GAME OPERATION PLATFORM</div>
+      <h1>极跃棋牌运营系统</h1>
+      <p>斗地主与内蒙麻将双引擎驱动，覆盖实时对战、用户经济、风控审计、数据报表与多端客户端的一体化运营平台。</p>
+      <div class="chips">
+        <span class="chip">RBAC 权限体系</span>
+        <span class="chip">实时房间监控</span>
+        <span class="chip">Socket.IO 对战</span>
+        <span class="chip">桌面 / 移动多端</span>
+      </div>
+    </section>
+
+    <section class="entries">
+      <a class="entry" href="/admin/">
+        <div class="icon">🌐</div>
+        <h2>Web 运营管理后台</h2>
+        <p>用户、财务、风控、审计、配置、数据大屏，一站式管理棋牌运营全链路。</p>
+        <div class="arrow">进入管理后台 →</div>
+      </a>
+      <a class="entry" href="/download/">
+        <div class="icon">💻</div>
+        <h2>Windows 桌面客户端</h2>
+        <p>下载极跃棋牌桌面版，支持斗地主与内蒙麻将，人机对战即开即玩。</p>
+        <div class="arrow">下载客户端 →</div>
+      </a>
+    </section>
+
+    <section class="features">
+      <div class="feature"><b>双游戏引擎</b><span>斗地主 14 种牌型与内蒙麻将胡牌番型完整实现。</span></div>
+      <div class="feature"><b>实时对战</b><span>房间、匹配、托管、断线续玩与聊天系统完整打通。</span></div>
+      <div class="feature"><b>运营闭环</b><span>签到、商城、任务、邮件、排行、战绩与破产补助。</span></div>
+      <div class="feature"><b>企业治理</b><span>角色权限、操作审计、风险中心与配置中心集中管理。</span></div>
+    </section>
+
+    <div class="footer">Powered by 极跃科技 · game.shengka.net</div>
+  </main>
+</body>
+</html>

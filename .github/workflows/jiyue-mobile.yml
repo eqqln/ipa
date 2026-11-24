@@ -1,0 +1,158 @@
+name: 极跃棋牌移动端编译（APK + 未签名 IPA）
+
+on:
+  push:
+    branches: [main, master]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: jiyue-mobile-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  android:
+    name: Android APK
+    runs-on: ubuntu-latest
+    steps:
+      - name: 拉取代码
+        uses: actions/checkout@v4
+
+      - name: 安装 Node 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+          cache-dependency-path: doudizhu/mobile/package-lock.json
+
+      - name: 安装依赖
+        working-directory: doudizhu/mobile
+        run: npm ci
+
+      - name: 构建 Web 资源
+        working-directory: doudizhu/mobile
+        run: npm run build
+
+      - name: 同步 Android 工程
+        working-directory: doudizhu/mobile
+        run: npx cap sync android
+
+      - name: 安装 JDK 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+          cache: gradle
+
+      - name: 准备 Android SDK
+        uses: android-actions/setup-android@v3
+
+      - name: 修正 Gradle 权限
+        working-directory: doudizhu/mobile
+        run: chmod +x android/gradlew
+
+      - name: 构建 Debug APK
+        working-directory: doudizhu/mobile/android
+        run: ./gradlew assembleDebug
+
+      - name: 整理产物
+        run: |
+          set -euo pipefail
+          mkdir -p artifacts
+          cp doudizhu/mobile/android/app/build/outputs/apk/debug/app-debug.apk artifacts/jiyue-qipai-android-debug.apk
+          ls -lh artifacts
+
+      - name: 上传 APK 产物
+        uses: actions/upload-artifact@v4
+        with:
+          name: jiyue-qipai-android-apk
+          path: artifacts/*.apk
+          if-no-files-found: error
+          retention-days: 30
+
+  ios:
+    name: iOS 未签名 IPA
+    runs-on: macos-14
+    steps:
+      - name: 拉取代码
+        uses: actions/checkout@v4
+
+      - name: 安装 Node 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+          cache-dependency-path: doudizhu/mobile/package-lock.json
+
+      - name: 安装依赖
+        working-directory: doudizhu/mobile
+        run: npm ci
+
+      - name: 构建 Web 资源
+        working-directory: doudizhu/mobile
+        run: npm run build
+
+      - name: 同步 iOS 工程
+        working-directory: doudizhu/mobile
+        run: npx cap sync ios
+
+      - name: 校验 scheme
+        working-directory: doudizhu/mobile
+        run: xcodebuild -list -project ios/App/App.xcodeproj | sed -n '1,40p'
+
+      - name: 解析 Swift Package 依赖
+        working-directory: doudizhu/mobile
+        run: xcodebuild -resolvePackageDependencies -project ios/App/App.xcodeproj -scheme App -configuration Release
+
+      - name: 归档未签名 App
+        working-directory: doudizhu/mobile
+        run: |
+          set -euo pipefail
+          xcodebuild \
+            -project ios/App/App.xcodeproj \
+            -scheme App \
+            -configuration Release \
+            -destination 'generic/platform=iOS' \
+            -derivedDataPath ios/DerivedData \
+            -archivePath "$RUNNER_TEMP/App.xcarchive" \
+            CODE_SIGNING_ALLOWED=NO \
+            CODE_SIGNING_REQUIRED=NO \
+            CODE_SIGN_IDENTITY="" \
+            PROVISIONING_PROFILE_SPECIFIER="" \
+            PRODUCT_BUNDLE_IDENTIFIER="com.jiyue.qipai.mobile" \
+            CURRENT_PROJECT_VERSION=1 \
+            MARKETING_VERSION=1.0.0 \
+            clean archive
+
+      - name: 打包未签名 IPA
+        run: |
+          set -euo pipefail
+          APP_PATH="$RUNNER_TEMP/App.xcarchive/Products/Applications/App.app"
+          if [ ! -d "$APP_PATH" ]; then
+            APP_PATH=$(find "$RUNNER_TEMP/App.xcarchive/Products/Applications" -maxdepth 1 -name '*.app' | head -n 1)
+          fi
+          if [ -z "$APP_PATH" ] || [ ! -d "$APP_PATH" ]; then
+            echo "归档中未找到 App.app"
+            exit 1
+          fi
+
+          mkdir -p "$GITHUB_WORKSPACE/artifacts"
+          rm -rf "$RUNNER_TEMP/ipa-stage"
+          mkdir -p "$RUNNER_TEMP/ipa-stage/Payload"
+          cp -R "$APP_PATH" "$RUNNER_TEMP/ipa-stage/Payload/App.app"
+          rm -rf "$RUNNER_TEMP/ipa-stage/Payload/App.app/_CodeSignature"
+
+          cd "$RUNNER_TEMP/ipa-stage"
+          zip -qry "$GITHUB_WORKSPACE/artifacts/jiyue-qipai-ios-unsigned.ipa" Payload
+          shasum -a 256 "$GITHUB_WORKSPACE/artifacts/jiyue-qipai-ios-unsigned.ipa"
+          ls -lh "$GITHUB_WORKSPACE/artifacts"
+
+      - name: 上传 IPA 产物
+        uses: actions/upload-artifact@v4
+        with:
+          name: jiyue-qipai-ios-unsigned-ipa
+          path: artifacts/*.ipa
+          if-no-files-found: error
+          retention-days: 30

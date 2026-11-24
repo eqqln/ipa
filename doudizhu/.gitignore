@@ -1,0 +1,23 @@
+node_modules/
+dist/
+release/
+build/
+*.log
+*.tmp
+_deploy_*.tar.gz
+
+# 本地运行数据
+server/data/db*.json
+server/data/*.log
+
+# Capacitor 生成产物，CI 会重新生成
+mobile/node_modules/
+mobile/dist/
+mobile/android/build/
+mobile/android/app/build/
+mobile/android/.gradle/
+mobile/android/local.properties
+mobile/android/app/src/main/assets/public/
+mobile/ios/App/build/
+mobile/ios/DerivedData/
+mobile/ios/App/App/public/
