@@ -1,0 +1,94 @@
+name: 构建 Android APK
+
+on:
+  push:
+    branches: [main, master]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: mobile-android-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build-android:
+    name: Android APK
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: 拉取代码
+        uses: actions/checkout@v4
+
+      - name: 安装 Node 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+          cache-dependency-path: mobile/package-lock.json
+
+      - name: 安装依赖
+        working-directory: mobile
+        run: npm ci
+
+      - name: 构建 Web 资源
+        working-directory: mobile
+        run: npm run build
+
+      - name: 同步 Android 工程
+        working-directory: mobile
+        run: npx cap sync android
+
+      - name: 安装 JDK 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+          cache: gradle
+
+      - name: 准备 Android SDK
+        uses: android-actions/setup-android@v3
+
+      - name: 修正 Gradle 权限
+        working-directory: mobile
+        run: chmod +x android/gradlew
+
+      - name: 构建 Debug APK
+        working-directory: mobile/android
+        run: ./gradlew assembleDebug
+
+      - name: 构建签名 Release APK（配置密钥时）
+        working-directory: mobile
+        env:
+          ANDROID_KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
+          ANDROID_KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+          ANDROID_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
+          ANDROID_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
+        run: |
+          set -euo pipefail
+          if [ -n "${ANDROID_KEYSTORE_BASE64}" ]; then
+            python3 scripts/prepare_android_signing.py
+            cd android
+            ./gradlew assembleRelease
+          else
+            echo "ANDROID_KEYSTORE_BASE64 未配置，跳过签名 Release APK"
+          fi
+
+      - name: 整理产物
+        run: |
+          set -euo pipefail
+          mkdir -p artifacts
+          cp mobile/android/app/build/outputs/apk/debug/app-debug.apk artifacts/jiyue-qipai-android-debug.apk
+          if [ -f mobile/android/app/build/outputs/apk/release/app-release.apk ]; then
+            cp mobile/android/app/build/outputs/apk/release/app-release.apk artifacts/jiyue-qipai-android-release.apk
+          fi
+          ls -lh artifacts
+
+      - name: 上传 APK 产物
+        uses: actions/upload-artifact@v4
+        with:
+          name: jiyue-qipai-android-apk
+          path: artifacts/*.apk
+          if-no-files-found: error
+          retention-days: 30
