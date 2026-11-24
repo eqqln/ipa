@@ -90,10 +90,30 @@ function playSound(type) {
 const SUIT_SYMBOL = { S: '♠', H: '♥', C: '♣', D: '♦', J: '' }
 const RANK_LABEL = { 3:'3',4:'4',5:'5',6:'6',7:'7',8:'8',9:'9',10:'10',11:'J',12:'Q',13:'K',14:'A',15:'2',16:'小王',17:'大王' }
 
-function parseCard(id) {
-  if (!id || id === '?') return { id, face: '?', mark: '', rank: 0, color: 'back' }
-  const [r, suit = ''] = String(id).split('-')
-  const rank = Number(r)
+function parseCard(card) {
+  // 兼容两种数据：① 牌对象 {id, rank, suit, ...}（服务端 snapshot 原样下发）
+  //              ② 字符串 id "3-S"（底牌/出牌历史）
+  if (!card || card === '?') return { id: card, face: '?', mark: '', rank: 0, color: 'back' }
+
+  let id, rank, suit
+  if (typeof card === 'object') {
+    id = card.id
+    rank = Number(card.rank)
+    suit = card.suit || ''
+  } else {
+    id = card
+    const [r, s = ''] = String(card).split('-')
+    rank = Number(r)
+    suit = s
+  }
+  // 兜底：rank 非法时从 id 再解析一次
+  if (!Number.isFinite(rank)) {
+    const [r] = String(id || '').split('-')
+    rank = Number(r)
+  }
+  if (!Number.isFinite(rank) || rank < 3) {
+    return { id, face: '?', mark: '', rank: 0, color: 'back' }
+  }
   const red = suit === 'H' || suit === 'D' || rank === 17
   return {
     id,
@@ -218,7 +238,7 @@ function send(type, data = {}) {
 
 function recordPlayed(cards) {
   for (const c of cards || []) {
-    const p = parseCard(typeof c === 'string' ? c : c.id)
+    const p = parseCard(c)   // parseCard 已兼容对象与字符串
     if (p.rank >= 3) playedCount.value[p.rank] = (playedCount.value[p.rank] || 0) + 1
   }
 }
