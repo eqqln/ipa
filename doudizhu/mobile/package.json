@@ -1,0 +1,31 @@
+{
+  "name": "jiyue-qipai-mobile",
+  "productName": "极跃棋牌",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "极跃棋牌 · Capacitor 移动端（Android APK / iOS IPA）",
+  "scripts": {
+    "build": "vite build --config vite.config.js",
+    "cap:sync": "npm run build && cap sync",
+    "cap:add:android": "cap add android",
+    "cap:add:ios": "cap add ios",
+    "cap:open:android": "cap open android",
+    "cap:open:ios": "cap open ios"
+  },
+  "dependencies": {
+    "@capacitor/core": "^8.6.2",
+    "axios": "^1.21.1",
+    "pinia": "^2.3.1",
+    "socket.io-client": "^4.8.4",
+    "vue": "^3.5.46",
+    "vue-router": "^4.6.5"
+  },
+  "devDependencies": {
+    "@capacitor/android": "^8.6.2",
+    "@capacitor/cli": "^8.6.2",
+    "@capacitor/ios": "^8.6.2",
+    "@vitejs/plugin-vue": "^5.2.4",
+    "vite": "^5.4.21"
+  }
+}
