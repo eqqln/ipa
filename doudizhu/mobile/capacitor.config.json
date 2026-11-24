@@ -1,0 +1,12 @@
+{
+  "appId": "com.jiyue.qipai.mobile",
+  "appName": "极跃棋牌",
+  "webDir": "dist",
+  "bundledWebRuntime": false,
+  "loggingEnabled": false,
+  "server": {
+    "androidScheme": "https",
+    "iosScheme": "capacitor",
+    "allowNavigation": ["game.shengka.net"]
+  }
+}
